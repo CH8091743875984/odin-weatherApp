@@ -116,7 +116,7 @@ eval("\n\n/* istanbul ignore next  */\nfunction styleTagTransform(css, styleElem
   \**********************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _style_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style.css */ \"./src/style.css\");\n\n\nconsole.log(\"initializing\");\n\n\n//# sourceURL=webpack://odin-repositorytemplate/./src/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _style_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./style.css */ \"./src/style.css\");\n\n\nconsole.log(\"initializing\");\n\nasync function getWeather(location) {\n  const baseURL =\n    \"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/\";\n  const key = \"Z3RK8ACQE7B4YJFZ9AEPWPQ4D\";\n  const fetchURL = baseURL + location + \"?key=\" + key;\n  try {\n    const response = await fetch(fetchURL, { mode: \"cors\" });\n\n    const result = await response.json();\n\n    return result;\n  } catch (error) {\n    console.log(\"There was an error!\");\n  }\n}\n\nwindow.getWeather = getWeather;\n\n\n//# sourceURL=webpack://odin-repositorytemplate/./src/index.js?");
 
 /***/ })
 
