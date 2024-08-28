@@ -28,37 +28,33 @@ async function processWeatherData(location) {
   const date = data.currentConditions.datetimeEpoch;
   const timezoneOffset = data.tzoffset;
   const localeDatetime = getLocalizedDatetime(date, timezoneOffset);
+  const renderLocaleDatetime = formatDatetime(localeDatetime);
 
-  document.querySelector(".localDatetime").textContent =
-    formatDatetime(localeDatetime);
+  const renderAddress = data.resolvedAddress;
+  const renderTemp = formatTemp(data.currentConditions.temp);
+  const renderHumidity = formatPercent(data.currentConditions.humidity);
+  const renderFeelsLike = formatTemp(data.currentConditions.feelslike);
+  const renderSunrise = data.currentConditions.sunrise;
 
-  document.querySelector(".resolvedAddress").textContent = data.resolvedAddress;
-  document.querySelector(".currentTemp").textContent = formatTemp(
-    data.currentConditions.temp
-  );
-  document.querySelector(".currentHumidity").textContent =
-    data.currentConditions.humidity;
-  document.querySelector(".currentFeelsLike").textContent = formatTemp(
-    data.currentConditions.feelslike
-  );
-  document.querySelector(".currentSunrise").textContent =
-    data.currentConditions.sunrise;
-  document.querySelector(".currentSunset").textContent =
-    data.currentConditions.sunset;
-  document.querySelector(".currentConditions").textContent =
-    data.currentConditions.conditions;
-  document.querySelector(".currentPrecipProb").textContent =
-    data.currentConditions.precipprob;
-  document.querySelector(".currentPrecipType").textContent =
-    data.currentConditions.preciptype;
-  document.querySelector(".currentWindSpeed").textContent =
-    data.currentConditions.windspeed;
-  document.querySelector(".currentWindDir").textContent =
-    data.currentConditions.winddir;
+  const renderSunset = data.currentConditions.sunset;
+  const renderConditions = data.currentConditions.conditions;
+  const renderPrecipProb = formatPercent(data.currentConditions.precipprob);
+  const renderPrecipType = data.currentConditions.preciptype;
+  const renderWindSpeed = data.currentConditions.windspeed + " mph";
+  const renderWindDir = data.currentConditions.winddir;
 
-  const address = data.resolvedAddress;
-
-  return address;
+  document.querySelector(".localDatetime").textContent = renderLocaleDatetime;
+  document.querySelector(".resolvedAddress").textContent = renderAddress;
+  document.querySelector(".currentTemp").textContent = renderTemp;
+  document.querySelector(".currentHumidity").textContent = renderHumidity;
+  document.querySelector(".currentFeelsLike").textContent = renderFeelsLike;
+  document.querySelector(".currentSunrise").textContent = renderSunrise;
+  document.querySelector(".currentSunset").textContent = renderSunset;
+  document.querySelector(".currentConditions").textContent = renderConditions;
+  document.querySelector(".currentPrecipProb").textContent = renderPrecipProb;
+  document.querySelector(".currentPrecipType").textContent = renderPrecipType;
+  document.querySelector(".currentWindSpeed").textContent = renderWindSpeed;
+  document.querySelector(".currentWindDir").textContent = renderWindDir;
 }
 
 function formatTemp(value) {
@@ -87,6 +83,12 @@ function formatDatetime(dateObject) {
 
   return `${month}/${day}/${year} ${hourTwelve}:${minute} ${period}`;
 }
+
+function formatPercent(value) {
+  return Math.round(value) + "%";
+}
+
+function formatTime(dateObject) {}
 
 let main = getWeather("anchorage");
 processWeatherData("anchorage");

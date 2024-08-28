@@ -4,17 +4,52 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+    />
   </head>
   <body>
     <div class="header"></div>
+    <div class="searchBar">
+      <input type="text" />
+    </div>
     <div class="container">
-      <div class="resolvedAddress"></div>
-      <div class="currentTemp"></div>
-      <div class="currentConditions"></div>
-      <div class="currentPrecipProb"></div>
-      <div class="currentPrecipType"></div>
-      <div class="currentWindSpeed"></div>
-      <div class="currentWindDir"></div>
+      <div class="leftSummary">
+        <div class="whereWhen">
+          <span class="resolvedAddress">--</span>
+          <span class="localDatetime">--</span>
+        </div>
+        <div class="currentTemp">--</div>
+        <div class="currentConditions">--</div>
+        <div class="currentPrecipProb">--</div>
+        <div class="currentPrecipType">--</div>
+
+        <i class="material-symbols-outlined">trending_flat</i>
+        <div class="currentWindSpeed">--</div>
+        <div class="currentWindDir">--</div>
+      </div>
+      <div class="rightDetails">
+        <table>
+          <tr>
+            <th>Humidity</th>
+            <td class="currentHumidity">--</td>
+          </tr>
+          <tr>
+            <th>Feels Like</th>
+            <td class="currentFeelsLike">--</td>
+          </tr>
+          <tr>
+            <th>Sunrise</th>
+            <td class="currentSunrise">--</td>
+          </tr>
+          <tr>
+            <th>Sunset</th>
+            <td class="currentSunset">--</td>
+          </tr>
+        </table>
+      </div>
+      <div class="bottomForecast"></div>
     </div>
   </body>
 </html>
