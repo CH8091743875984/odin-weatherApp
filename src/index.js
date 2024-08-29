@@ -12,7 +12,7 @@ async function getWeather(location) {
     const response = await fetch(fetchURL, { mode: "cors" });
     // console.log(response);
     const result = await response.json();
-    // console.log(result);
+    console.log(result);
     return result;
   } catch (error) {
     console.log("There was an error!");
@@ -111,8 +111,28 @@ function rotateSVG(target, angle) {
   }
 }
 
+function setSearchButtonListener() {
+  const searchButton = document.querySelector("#searchButton");
+  searchButton.addEventListener("click", () => {
+    const searchValue = document.querySelector("#searchInput").value;
+    processWeatherData(searchValue);
+  });
+}
+
+function setSearchInputListener() {
+  const searchInput = document.querySelector("#searchInput");
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      const searchValue = document.querySelector("#searchInput").value;
+      processWeatherData(searchValue);
+    }
+  });
+}
+
 let main = getWeather("anchorage");
 processWeatherData("anchorage");
+setSearchButtonListener();
+setSearchInputListener();
 
 window.formatTime = formatTime;
 
