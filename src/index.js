@@ -34,14 +34,13 @@ async function processWeatherData(location) {
   const renderTemp = formatTemp(data.currentConditions.temp);
   const renderHumidity = formatPercent(data.currentConditions.humidity);
   const renderFeelsLike = formatTemp(data.currentConditions.feelslike);
-  const renderSunrise = data.currentConditions.sunrise;
-
-  const renderSunset = data.currentConditions.sunset;
+  const renderSunrise = formatTime(data.currentConditions.sunrise);
+  const renderSunset = formatTime(data.currentConditions.sunset);
   const renderConditions = data.currentConditions.conditions;
   const renderPrecipProb = formatPercent(data.currentConditions.precipprob);
   const renderPrecipType = data.currentConditions.preciptype;
   const renderWindSpeed = data.currentConditions.windspeed + " mph";
-  const renderWindDir = data.currentConditions.winddir;
+  const windDir = data.currentConditions.winddir;
 
   document.querySelector(".localDatetime").textContent = renderLocaleDatetime;
   document.querySelector(".resolvedAddress").textContent = renderAddress;
@@ -54,7 +53,9 @@ async function processWeatherData(location) {
   document.querySelector(".currentPrecipProb").textContent = renderPrecipProb;
   document.querySelector(".currentPrecipType").textContent = renderPrecipType;
   document.querySelector(".currentWindSpeed").textContent = renderWindSpeed;
-  document.querySelector(".currentWindDir").textContent = renderWindDir;
+
+  const windArrow = document.querySelector("#windArrow");
+  rotateSVG(windArrow, windDir);
 }
 
 function formatTemp(value) {
@@ -88,10 +89,32 @@ function formatPercent(value) {
   return Math.round(value) + "%";
 }
 
-function formatTime(dateObject) {}
+function formatTime(timeString) {
+  let [hours, minutes, seconds] = timeString.split(":");
+  hours = parseInt(hours);
+
+  const period = hours >= 12 ? "PM" : "AM";
+
+  hours = hours % 12 || 12;
+
+  const result = `${hours}:${minutes} ${period}`;
+
+  return result;
+}
+
+function rotateSVG(target, angle) {
+  if (angle >= 0 && angle <= 360) {
+    target.style.visibility = "visible";
+    target.style.transform = "rotate(" + angle + "deg)";
+  } else {
+    target.style.visibility = "hidden";
+  }
+}
 
 let main = getWeather("anchorage");
 processWeatherData("anchorage");
+
+window.formatTime = formatTime;
 
 window.main = main;
 window.getLocalizedDatetime = getLocalizedDatetime;
