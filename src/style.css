@@ -3,7 +3,8 @@ body {
 }
 
 .leftSummary,
-.rightDetails {
+.rightDetails,
+.bottomForecast {
   margin: 5px;
   padding: 5px;
   border: 1px solid black;
@@ -27,4 +28,15 @@ td {
 
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.dailyForecastCarousel {
+  display: grid;
+  grid-auto-flow: column;
+  overflow: hidden;
+}
+
+.dailyWidget {
+  border: 1px solid darkblue;
+  width: 100px;
 }

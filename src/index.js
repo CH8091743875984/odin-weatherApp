@@ -58,6 +58,71 @@ async function processWeatherData(location) {
   rotateSVG(windArrow, windDir);
 }
 
+async function processWeatherForecast(location) {
+  const data = await getWeather(location);
+
+  clearChildren(document.querySelector(".dailyForecastCarousel"));
+  data.days.forEach((day) => {
+    const date = day.datetime;
+    const conditions = day.conditions;
+    const tempHigh = formatTemp(day.tempmax);
+    const tempLow = formatTemp(day.tempmin);
+    const windDir = day.winddir;
+    const windSpeed = day.windspeed + " mph";
+    const precipProb = formatPercent(day.precipprob);
+
+    addDailyForcastWidget(
+      date,
+      conditions,
+      tempHigh,
+      tempLow,
+      windDir,
+      windSpeed,
+      precipProb
+    );
+  });
+}
+
+function addDailyForcastWidget(
+  date,
+  conditions,
+  tempHigh,
+  tempLow,
+  windDir,
+  windSpeed,
+  precipProb
+) {
+  const carousel = document.querySelector(".dailyForecastCarousel");
+
+  const widget = document.createElement("div");
+  widget.classList.add("dailyWidget");
+
+  const dateDiv = document.createElement("div");
+  dateDiv.textContent = date;
+  const conditionsDiv = document.createElement("div");
+  conditionsDiv.textContent = conditions;
+  const tempsDiv = document.createElement("div");
+  tempsDiv.textContent = tempHigh + " / " + tempLow;
+  const windDiv = document.createElement("div");
+  windDiv.textContent = windDir + " " + windSpeed;
+  const precipDiv = document.createElement("div");
+  precipDiv.textContent = precipProb;
+
+  widget.appendChild(dateDiv);
+  widget.appendChild(conditionsDiv);
+  widget.appendChild(tempsDiv);
+  widget.appendChild(precipDiv);
+  widget.appendChild(windDiv);
+
+  carousel.append(widget);
+}
+
+function clearChildren(parent) {
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+}
+
 function formatTemp(value) {
   return Math.round(value) + "\u00B0";
 }
@@ -116,6 +181,7 @@ function setSearchButtonListener() {
   searchButton.addEventListener("click", () => {
     const searchValue = document.querySelector("#searchInput").value;
     processWeatherData(searchValue);
+    processWeatherForecast(searchValue);
   });
 }
 
@@ -125,12 +191,14 @@ function setSearchInputListener() {
     if (event.key === "Enter") {
       const searchValue = document.querySelector("#searchInput").value;
       processWeatherData(searchValue);
+      processWeatherForecast(searchValue);
     }
   });
 }
 
 let main = getWeather("anchorage");
 processWeatherData("anchorage");
+processWeatherForecast("anchorage");
 setSearchButtonListener();
 setSearchInputListener();
 
