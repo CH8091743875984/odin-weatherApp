@@ -226,32 +226,35 @@ function setSearchInputListener() {
 function addScrollingTouch() {
   const carousel = document.querySelector(".dailyForecastCarousel");
 
-  const isDown = false;
+  let isDown = false;
   let startX;
   let scrollLeft;
 
   carousel.addEventListener("touchstart", (event) => {
-    isDown = True;
+    console.log("touch started");
+    isDown = true;
     startX = event.touches[0].pageX - carousel.offsetLeft;
     scrollLeft = carousel.scrollLeft;
   });
 
-  carousel.addEventListener("touchmove"),
-    (event) => {
-      if (!isDown) return;
-      event.preventDefault();
+  carousel.addEventListener("touchmove", (event) => {
+    console.log("touch moving");
+    if (!isDown) return;
+    event.preventDefault();
 
-      const x = event.touches[0].pageX - carousel.offsetLeft;
-      const walk = x - startX;
-      carousel.scrollLeft = scrollLeft - walk;
-    };
+    const x = event.touches[0].pageX - carousel.offsetLeft;
+    const walk = x - startX;
+    carousel.scrollLeft = scrollLeft - walk;
+  });
   carousel.addEventListener("touchend"),
     () => {
-      isDown.false;
+      console.log("touch ending");
+      isDown = false;
     };
   carousel.addEventListener("touchcancel"),
     () => {
-      isDown.false;
+      console.log("touch canceled");
+      isDown = false;
     };
 }
 
