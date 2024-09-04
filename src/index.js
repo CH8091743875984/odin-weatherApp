@@ -223,7 +223,39 @@ function setSearchInputListener() {
   });
 }
 
-function addScrolling() {
+function addScrollingTouch() {
+  const carousel = document.querySelector(".dailyForecastCarousel");
+
+  const isDown = false;
+  let startX;
+  let scrollLeft;
+
+  carousel.addEventListener("touchstart", (event) => {
+    isDown = True;
+    startX = event.touches[0].pageX - carousel.offsetLeft;
+    scrollLeft = carousel.scrollLeft;
+  });
+
+  carousel.addEventListener("touchmove"),
+    (event) => {
+      if (!isDown) return;
+      event.preventDefault();
+
+      const x = event.touches[0].pageX - carousel.offsetLeft;
+      const walk = x - startX;
+      carousel.scrollLeft = scrollLeft - walk;
+    };
+  carousel.addEventListener("touchend"),
+    () => {
+      isDown.false;
+    };
+  carousel.addEventListener("touchcancel"),
+    () => {
+      isDown.false;
+    };
+}
+
+function addScrollingWheel() {
   const carousel = document.querySelector(".dailyForecastCarousel");
   carousel.addEventListener("wheel", (event) => {
     //prevent default vertical scroll
@@ -237,7 +269,7 @@ processWeatherData("anchorage");
 processWeatherForecast("anchorage");
 setSearchButtonListener();
 setSearchInputListener();
-addScrolling();
+addScrollingWheel();
 
 window.formatTime = formatTime;
 
