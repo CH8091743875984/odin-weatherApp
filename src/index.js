@@ -15,6 +15,7 @@ async function getWeather(location) {
     console.log(result);
     return result;
   } catch (error) {
+    alert("Location not found.");
     console.log("There was an error!");
     console.log(error);
   }
@@ -130,8 +131,6 @@ function addDailyForcastWidget(
   windDiv.appendChild(windArrow);
   windDiv.appendChild(windSpeedSpan);
 
-  // windDiv.textContent = windSpeed;
-
   const precipDiv = document.createElement("div");
   precipDiv.textContent = precipProb;
 
@@ -140,7 +139,6 @@ function addDailyForcastWidget(
   widget.appendChild(conditionsDiv);
 
   widget.appendChild(precipDiv);
-  // widget.appendChild(windArrow);
   widget.appendChild(windDiv);
 
   carousel.append(widget);
@@ -225,11 +223,21 @@ function setSearchInputListener() {
   });
 }
 
+function addScrolling() {
+  const carousel = document.querySelector(".dailyForecastCarousel");
+  carousel.addEventListener("wheel", (event) => {
+    //prevent default vertical scroll
+    event.preventDefault();
+    carousel.scrollLeft += event.deltaY;
+  });
+}
+
 let main = getWeather("anchorage");
 processWeatherData("anchorage");
 processWeatherForecast("anchorage");
 setSearchButtonListener();
 setSearchInputListener();
+addScrolling();
 
 window.formatTime = formatTime;
 
