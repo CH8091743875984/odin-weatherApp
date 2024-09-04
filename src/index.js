@@ -68,7 +68,7 @@ function createWindArrow(direction) {
   return arrow;
 }
 
-async function processWeatherForecast(location) {
+async function processDailyForecast(location) {
   const data = await getWeather(location);
 
   clearChildren(document.querySelector(".dailyForecastCarousel"));
@@ -78,7 +78,7 @@ async function processWeatherForecast(location) {
     const tempHigh = formatTemp(day.tempmax);
     const tempLow = formatTemp(day.tempmin);
     const windDir = day.winddir;
-    const windSpeed = day.windspeed + " mph";
+    const windSpeed = Math.round(day.windspeed) + " mph";
     const precipProb = formatPercent(day.precipprob);
 
     addDailyForcastWidget(
@@ -90,6 +90,49 @@ async function processWeatherForecast(location) {
       windSpeed,
       precipProb
     );
+  });
+}
+
+async function processHourlyForecast(location) {
+  const data = await getWeather(location);
+
+  clearChildren(document.querySelector(".hourlyForecastCarousel"));
+  data.days.forEach((day) => {
+    day.hours.forEach((hour) => {
+      const date = day.datetime;
+      const timezoneOffset = data.tzoffset;
+
+      const hourThis = hour.datetimeEpoch;
+
+      const localeDatetime = getLocalizedDatetime(hourThis, timezoneOffset);
+      const renderLocaleDatetime = formatTimeShort(localeDatetime);
+
+      const conditions = hour.conditions;
+      const temp = formatTemp(hour.temp);
+      const windDir = hour.winddir;
+      const windSpeed = Math.round(hour.windspeed) + " mph";
+      const precipProb = formatPercent(day.precipprob);
+
+      addHourlyForcastWidget(
+        date,
+        renderLocaleDatetime,
+        conditions,
+        temp,
+        windDir,
+        windSpeed,
+        precipProb
+      );
+    });
+
+    // addDailyForcastWidget(
+    //   date,
+    //   conditions,
+    //   tempHigh,
+    //   tempLow,
+    //   windDir,
+    //   windSpeed,
+    //   precipProb
+    // );
   });
 }
 
@@ -118,9 +161,10 @@ function addDailyForcastWidget(
 
   const dateDiv = document.createElement("div");
   dateDiv.textContent = formatDateShort(date);
-  console.log(date);
+
   const conditionsDiv = document.createElement("div");
   conditionsDiv.textContent = conditions;
+
   const tempsDiv = document.createElement("div");
   tempsDiv.textContent = tempHigh + " / " + tempLow;
 
@@ -144,6 +188,52 @@ function addDailyForcastWidget(
   carousel.append(widget);
 }
 
+function addHourlyForcastWidget(
+  date,
+  hour,
+  conditions,
+  temp,
+  windDir,
+  windSpeed,
+  precipProb
+) {
+  const carousel = document.querySelector(".hourlyForecastCarousel");
+
+  const widget = document.createElement("div");
+  widget.classList.add("hourlyWidget");
+
+  const dateDiv = document.createElement("div");
+  dateDiv.textContent = formatDateShort(date);
+
+  const hourDiv = document.createElement("div");
+  hourDiv.textContent = hour;
+
+  const conditionsDiv = document.createElement("div");
+  conditionsDiv.textContent = conditions;
+  const tempDiv = document.createElement("div");
+  tempDiv.textContent = temp;
+
+  const windDiv = document.createElement("div");
+  const windArrow = createWindArrow(windDir);
+  const windSpeedSpan = document.createElement("span");
+  windSpeedSpan.textContent = windSpeed;
+  windDiv.appendChild(windArrow);
+  windDiv.appendChild(windSpeedSpan);
+
+  const precipDiv = document.createElement("div");
+  precipDiv.textContent = precipProb;
+
+  widget.appendChild(dateDiv);
+  widget.appendChild(hourDiv);
+  widget.appendChild(tempDiv);
+  widget.appendChild(conditionsDiv);
+
+  widget.appendChild(precipDiv);
+  widget.appendChild(windDiv);
+
+  carousel.append(widget);
+}
+
 function clearChildren(parent) {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
@@ -156,9 +246,9 @@ function formatTemp(value) {
 
 function getLocalizedDatetime(epoch, timezoneOffset) {
   const date = new Date(epoch * 1000);
-  console.log("date: " + date);
+  // console.log("date: " + date);
   const utc = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
-  console.log("date: " + utc);
+  // console.log("date: " + utc);
   const localDateTime = new Date(utc + 60 * 60 * 1000 * timezoneOffset);
 
   return localDateTime;
@@ -175,6 +265,19 @@ function formatDatetime(dateObject) {
   const period = hour >= 12 ? "PM" : "AM";
 
   return `${month}/${day}/${year} ${hourTwelve}:${minute} ${period}`;
+}
+
+function formatTimeShort(dateObject) {
+  const year = dateObject.getFullYear();
+  const month = dateObject.getMonth() + 1;
+  const day = dateObject.getDay();
+  const hour = dateObject.getHours();
+  const minute = dateObject.getMinutes();
+
+  const hourTwelve = hour % 12 || 12;
+  const period = hour >= 12 ? "PM" : "AM";
+
+  return `${hourTwelve} ${period}`;
 }
 
 function formatPercent(value) {
@@ -208,7 +311,8 @@ function setSearchButtonListener() {
   searchButton.addEventListener("click", () => {
     const searchValue = document.querySelector("#searchInput").value;
     processWeatherData(searchValue);
-    processWeatherForecast(searchValue);
+    processDailyForecast(searchValue);
+    processHourlyForecast(searchValue);
   });
 }
 
@@ -223,8 +327,18 @@ function setSearchInputListener() {
   });
 }
 
-function addScrollingTouch() {
-  const carousel = document.querySelector(".dailyForecastCarousel");
+function setAllScrolling() {
+  const carouselDaily = document.querySelector(".dailyForecastCarousel");
+  addScrollingTouch(carouselDaily);
+  addScrollingWheel(carouselDaily);
+
+  const carouselHourly = document.querySelector(".hourlyForecastCarousel");
+  addScrollingTouch(carouselHourly);
+  addScrollingWheel(carouselHourly);
+}
+
+function addScrollingTouch(element) {
+  const carousel = element;
 
   let isDown = false;
   let startX;
@@ -246,20 +360,18 @@ function addScrollingTouch() {
     const walk = x - startX;
     carousel.scrollLeft = scrollLeft - walk;
   });
-  carousel.addEventListener("touchend"),
-    () => {
-      console.log("touch ending");
-      isDown = false;
-    };
-  carousel.addEventListener("touchcancel"),
-    () => {
-      console.log("touch canceled");
-      isDown = false;
-    };
+  carousel.addEventListener("touchend", () => {
+    console.log("touch ending");
+    isDown = false;
+  });
+  carousel.addEventListener("touchcancel", () => {
+    console.log("touch canceled");
+    isDown = false;
+  });
 }
 
-function addScrollingWheel() {
-  const carousel = document.querySelector(".dailyForecastCarousel");
+function addScrollingWheel(element) {
+  const carousel = element;
   carousel.addEventListener("wheel", (event) => {
     //prevent default vertical scroll
     event.preventDefault();
@@ -269,11 +381,11 @@ function addScrollingWheel() {
 
 let main = getWeather("anchorage");
 processWeatherData("anchorage");
-processWeatherForecast("anchorage");
+processDailyForecast("anchorage");
+processHourlyForecast("anchorage");
 setSearchButtonListener();
 setSearchInputListener();
-addScrollingWheel();
-addScrollingTouch();
+setAllScrolling();
 
 window.formatTime = formatTime;
 
