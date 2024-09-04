@@ -58,6 +58,15 @@ async function processWeatherData(location) {
   rotateSVG(windArrow, windDir);
 }
 
+function createWindArrow(direction) {
+  const arrow = document.createElement("i");
+  arrow.classList.add("material-symbols-outlined");
+  arrow.textContent = "north";
+  rotateSVG(arrow, direction);
+
+  return arrow;
+}
+
 async function processWeatherForecast(location) {
   const data = await getWeather(location);
 
@@ -83,6 +92,15 @@ async function processWeatherForecast(location) {
   });
 }
 
+function formatDateShort(dateString) {
+  //formats a date string originating in the format "YYYY-MM-DD"
+  const parts = dateString.split("-");
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+  const formattedDate = month + "/" + day;
+  return formattedDate;
+}
+
 function addDailyForcastWidget(
   date,
   conditions,
@@ -98,20 +116,31 @@ function addDailyForcastWidget(
   widget.classList.add("dailyWidget");
 
   const dateDiv = document.createElement("div");
-  dateDiv.textContent = date;
+  dateDiv.textContent = formatDateShort(date);
+  console.log(date);
   const conditionsDiv = document.createElement("div");
   conditionsDiv.textContent = conditions;
   const tempsDiv = document.createElement("div");
   tempsDiv.textContent = tempHigh + " / " + tempLow;
+
   const windDiv = document.createElement("div");
-  windDiv.textContent = windDir + " " + windSpeed;
+  const windArrow = createWindArrow(windDir);
+  const windSpeedSpan = document.createElement("span");
+  windSpeedSpan.textContent = windSpeed;
+  windDiv.appendChild(windArrow);
+  windDiv.appendChild(windSpeedSpan);
+
+  // windDiv.textContent = windSpeed;
+
   const precipDiv = document.createElement("div");
   precipDiv.textContent = precipProb;
 
   widget.appendChild(dateDiv);
-  widget.appendChild(conditionsDiv);
   widget.appendChild(tempsDiv);
+  widget.appendChild(conditionsDiv);
+
   widget.appendChild(precipDiv);
+  // widget.appendChild(windArrow);
   widget.appendChild(windDiv);
 
   carousel.append(widget);
