@@ -7,7 +7,7 @@ async function getWeather(location) {
     "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
   const key = "Z3RK8ACQE7B4YJFZ9AEPWPQ4D";
   const fetchURL = baseURL + location + "?key=" + key;
-  console.log(fetchURL);
+  // console.log(fetchURL);
   try {
     const response = await fetch(fetchURL, { mode: "cors" });
     // console.log(response);
@@ -23,9 +23,14 @@ async function getWeather(location) {
 
 //split this into api vs dom, add template structure to html file, make query selectors in index and add data to them
 
-async function processWeatherData(location) {
+async function processWeatherDataAll(location) {
   const data = await getWeather(location);
+  processWeatherData(data);
+  processDailyForecast(data);
+  processHourlyForecast(data);
+}
 
+function processWeatherData(data) {
   const date = data.currentConditions.datetimeEpoch;
   const timezoneOffset = data.tzoffset;
   const localeDatetime = getLocalizedDatetime(date, timezoneOffset);
@@ -68,9 +73,7 @@ function createWindArrow(direction) {
   return arrow;
 }
 
-async function processDailyForecast(location) {
-  const data = await getWeather(location);
-
+function processDailyForecast(data) {
   clearChildren(document.querySelector(".dailyForecastCarousel"));
   data.days.forEach((day) => {
     const date = day.datetime;
@@ -93,9 +96,7 @@ async function processDailyForecast(location) {
   });
 }
 
-async function processHourlyForecast(location) {
-  const data = await getWeather(location);
-
+function processHourlyForecast(data) {
   clearChildren(document.querySelector(".hourlyForecastCarousel"));
   data.days.forEach((day) => {
     day.hours.forEach((hour) => {
@@ -123,16 +124,6 @@ async function processHourlyForecast(location) {
         precipProb
       );
     });
-
-    // addDailyForcastWidget(
-    //   date,
-    //   conditions,
-    //   tempHigh,
-    //   tempLow,
-    //   windDir,
-    //   windSpeed,
-    //   precipProb
-    // );
   });
 }
 
@@ -246,9 +237,7 @@ function formatTemp(value) {
 
 function getLocalizedDatetime(epoch, timezoneOffset) {
   const date = new Date(epoch * 1000);
-  // console.log("date: " + date);
   const utc = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
-  // console.log("date: " + utc);
   const localDateTime = new Date(utc + 60 * 60 * 1000 * timezoneOffset);
 
   return localDateTime;
@@ -310,9 +299,7 @@ function setSearchButtonListener() {
   const searchButton = document.querySelector("#searchButton");
   searchButton.addEventListener("click", () => {
     const searchValue = document.querySelector("#searchInput").value;
-    processWeatherData(searchValue);
-    processDailyForecast(searchValue);
-    processHourlyForecast(searchValue);
+    processWeatherDataAll(searchValue);
   });
 }
 
@@ -321,8 +308,7 @@ function setSearchInputListener() {
   searchInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       const searchValue = document.querySelector("#searchInput").value;
-      processWeatherData(searchValue);
-      processWeatherForecast(searchValue);
+      processWeatherDataAll(searchValue);
     }
   });
 }
@@ -380,16 +366,18 @@ function addScrollingWheel(element) {
 }
 
 let main = getWeather("anchorage");
-processWeatherData("anchorage");
-processDailyForecast("anchorage");
-processHourlyForecast("anchorage");
+// processWeatherData("anchorage");
+// processDailyForecast("anchorage");
+// processHourlyForecast("anchorage");
+
+processWeatherDataAll("anchorage");
 setSearchButtonListener();
 setSearchInputListener();
 setAllScrolling();
 
-window.formatTime = formatTime;
+// window.formatTime = formatTime;
 
 window.main = main;
-window.getLocalizedDatetime = getLocalizedDatetime;
+// window.getLocalizedDatetime = getLocalizedDatetime;
 
 // window.getWeather = getWeather;
