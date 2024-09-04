@@ -270,6 +270,7 @@ processWeatherForecast("anchorage");
 setSearchButtonListener();
 setSearchInputListener();
 addScrollingWheel();
+addScrollingTouch();
 
 window.formatTime = formatTime;
 
