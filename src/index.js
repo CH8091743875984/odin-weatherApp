@@ -244,7 +244,7 @@ function formatDatetime(dateObject) {
   const month = dateObject.getMonth() + 1;
   const day = dateObject.getDay();
   const hour = dateObject.getHours();
-  const minute = dateObject.getMinutes();
+  const minute = String(dateObject.getMinutes()).padStart(2, "0");
 
   const hourTwelve = hour % 12 || 12;
   const period = hour >= 12 ? "PM" : "AM";
