@@ -1,29 +1,23 @@
 import "./style.css";
+import { getWeather } from "./api";
+import {
+  formatPercent,
+  formatTime,
+  formatTemp,
+  getLocalizedDatetime,
+  formatDatetime,
+  formatTimeShort,
+  createWindDirText,
+  formatDateShort,
+  clearChildren,
+} from "./util";
 
 console.log("initializing");
-
-async function getWeather(location) {
-  const baseURL =
-    "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
-  const key = "Z3RK8ACQE7B4YJFZ9AEPWPQ4D";
-  const fetchURL = baseURL + location + "?key=" + key;
-  // console.log(fetchURL);
-  try {
-    const response = await fetch(fetchURL, { mode: "cors" });
-    // console.log(response);
-    const result = await response.json();
-    console.log(result);
-    return result;
-  } catch (error) {
-    alert("Location not found.");
-    console.log("There was an error!");
-    console.log(error);
-  }
-}
 
 //split this into api vs dom, add template structure to html file, make query selectors in index and add data to them
 
 async function processWeatherDataAll(location) {
+  //pulls weather data for the given location and populates the UI modules
   const data = await getWeather(location);
   processWeatherData(data);
   processDailyForecast(data);
@@ -31,6 +25,7 @@ async function processWeatherDataAll(location) {
 }
 
 function processWeatherData(data) {
+  //for the current conditions: input of a full data object is formatted as needed and populated in the UI
   const date = data.currentConditions.datetimeEpoch;
   const timezoneOffset = data.tzoffset;
   const localeDatetime = getLocalizedDatetime(date, timezoneOffset);
@@ -64,24 +59,9 @@ function processWeatherData(data) {
   document.querySelector(".currentWindSpeed").textContent = renderWindSpeedDir;
 }
 
-function createWindArrow(direction) {
-  //takes an angle / degrees and returns an arrow svg rotated to that angle
-  const arrow = document.createElement("i");
-  arrow.classList.add("material-symbols-outlined");
-  arrow.textContent = "north";
-  rotateSVG(arrow, direction);
-
-  return arrow;
-}
-
-function createWindDirText(direction) {
-  //takes an angle / degrees and returns a text abbreviation of the cardinal direction
-  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
-  const index = Math.round((direction % 360) / 45);
-  return directions[index % 8];
-}
-
 function processDailyForecast(data) {
+  //for the daily conditions: input of a full data object is formatted as needed and populated in the UI
+
   clearChildren(document.querySelector(".dailyForecastCarousel"));
   data.days.forEach((day) => {
     const date = day.datetime;
@@ -104,6 +84,8 @@ function processDailyForecast(data) {
 }
 
 function processHourlyForecast(data) {
+  //for the hourly conditions: input of a full data object is formatted as needed and populated in the UI
+
   clearChildren(document.querySelector(".hourlyForecastCarousel"));
   data.days.forEach((day) => {
     day.hours.forEach((hour) => {
@@ -133,15 +115,6 @@ function processHourlyForecast(data) {
   });
 }
 
-function formatDateShort(dateString) {
-  //formats a date string originating in the format "YYYY-MM-DD"
-  const parts = dateString.split("-");
-  const month = parseInt(parts[1], 10);
-  const day = parseInt(parts[2], 10);
-  const formattedDate = month + "/" + day;
-  return formattedDate;
-}
-
 function addDailyForcastWidget(
   date,
   conditions,
@@ -150,6 +123,7 @@ function addDailyForcastWidget(
   windSpeedDir,
   precipProb
 ) {
+  //adds a single daily forcast widget to the DOM with the given arguments
   const carousel = document.querySelector(".dailyForecastCarousel");
 
   const widget = document.createElement("div");
@@ -188,6 +162,8 @@ function addHourlyForcastWidget(
   windSpeedDir,
   precipProb
 ) {
+  //adds a single hourly forcast widget to the DOM with the given arguments
+
   const carousel = document.querySelector(".hourlyForecastCarousel");
 
   const widget = document.createElement("div");
@@ -221,77 +197,8 @@ function addHourlyForcastWidget(
   carousel.append(widget);
 }
 
-function clearChildren(parent) {
-  while (parent.firstChild) {
-    parent.removeChild(parent.firstChild);
-  }
-}
-
-function formatTemp(value) {
-  return Math.round(value) + "\u00B0";
-}
-
-function getLocalizedDatetime(epoch, timezoneOffset) {
-  const date = new Date(epoch * 1000);
-  const utc = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
-  const localDateTime = new Date(utc + 60 * 60 * 1000 * timezoneOffset);
-
-  return localDateTime;
-}
-
-function formatDatetime(dateObject) {
-  const year = dateObject.getFullYear();
-  const month = dateObject.getMonth() + 1;
-  const day = dateObject.getDay();
-  const hour = dateObject.getHours();
-  const minute = String(dateObject.getMinutes()).padStart(2, "0");
-
-  const hourTwelve = hour % 12 || 12;
-  const period = hour >= 12 ? "PM" : "AM";
-
-  return `${month}/${day}/${year} ${hourTwelve}:${minute} ${period}`;
-}
-
-function formatTimeShort(dateObject) {
-  const year = dateObject.getFullYear();
-  const month = dateObject.getMonth() + 1;
-  const day = dateObject.getDay();
-  const hour = dateObject.getHours();
-  const minute = dateObject.getMinutes();
-
-  const hourTwelve = hour % 12 || 12;
-  const period = hour >= 12 ? "PM" : "AM";
-
-  return `${hourTwelve} ${period}`;
-}
-
-function formatPercent(value) {
-  return Math.round(value) + "%";
-}
-
-function formatTime(timeString) {
-  let [hours, minutes, seconds] = timeString.split(":");
-  hours = parseInt(hours);
-
-  const period = hours >= 12 ? "PM" : "AM";
-
-  hours = hours % 12 || 12;
-
-  const result = `${hours}:${minutes} ${period}`;
-
-  return result;
-}
-
-function rotateSVG(target, angle) {
-  if (angle >= 0 && angle <= 360) {
-    target.style.visibility = "visible";
-    target.style.transform = "rotate(" + angle + "deg)";
-  } else {
-    target.style.visibility = "hidden";
-  }
-}
-
 function setSearchButtonListener() {
+  //triggers UI population with newly searched term upon clicking the search button
   const searchButton = document.querySelector("#searchButton");
   searchButton.addEventListener("click", () => {
     const searchValue = document.querySelector("#searchInput").value;
@@ -300,6 +207,8 @@ function setSearchButtonListener() {
 }
 
 function setSearchInputListener() {
+  //triggers UI population with newly searched term upon hitting the enter key from the input element
+
   const searchInput = document.querySelector("#searchInput");
   searchInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
@@ -310,6 +219,7 @@ function setSearchInputListener() {
 }
 
 function setAllScrolling() {
+  //consolidated function to set scroll behavior on page
   const carouselDaily = document.querySelector(".dailyForecastCarousel");
   addScrollingTouch(carouselDaily);
   addScrollingWheel(carouselDaily);
@@ -320,6 +230,7 @@ function setAllScrolling() {
 }
 
 function addScrollingTouch(element) {
+  //sets scroll by touch functionality for mobile
   const carousel = element;
 
   let isDown = false;
@@ -353,6 +264,8 @@ function addScrollingTouch(element) {
 }
 
 function addScrollingWheel(element) {
+  //sets scroll by mouse wheel functionality
+
   const carousel = element;
   carousel.addEventListener("wheel", (event) => {
     //prevent default vertical scroll
