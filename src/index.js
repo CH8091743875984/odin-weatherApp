@@ -45,8 +45,11 @@ function processWeatherData(data) {
   const renderConditions = data.currentConditions.conditions;
   const renderPrecipProb = formatPercent(data.currentConditions.precipprob);
   const renderPrecipType = data.currentConditions.preciptype;
-  const renderWindSpeed = data.currentConditions.windspeed + " mph";
-  const windDir = data.currentConditions.winddir;
+  const renderWindSpeedDir =
+    createWindDirText(data.currentConditions.winddir) +
+    " " +
+    data.currentConditions.windspeed +
+    " mph";
 
   document.querySelector(".localDatetime").textContent = renderLocaleDatetime;
   document.querySelector(".resolvedAddress").textContent = renderAddress;
@@ -58,19 +61,24 @@ function processWeatherData(data) {
   document.querySelector(".currentConditions").textContent = renderConditions;
   document.querySelector(".currentPrecipProb").textContent = renderPrecipProb;
   document.querySelector(".currentPrecipType").textContent = renderPrecipType;
-  document.querySelector(".currentWindSpeed").textContent = renderWindSpeed;
-
-  const windArrow = document.querySelector("#windArrow");
-  rotateSVG(windArrow, windDir);
+  document.querySelector(".currentWindSpeed").textContent = renderWindSpeedDir;
 }
 
 function createWindArrow(direction) {
+  //takes an angle / degrees and returns an arrow svg rotated to that angle
   const arrow = document.createElement("i");
   arrow.classList.add("material-symbols-outlined");
   arrow.textContent = "north";
   rotateSVG(arrow, direction);
 
   return arrow;
+}
+
+function createWindDirText(direction) {
+  //takes an angle / degrees and returns a text abbreviation of the cardinal direction
+  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+  const index = Math.round((direction % 360) / 45);
+  return directions[index % 8];
 }
 
 function processDailyForecast(data) {
@@ -80,8 +88,8 @@ function processDailyForecast(data) {
     const conditions = day.conditions;
     const tempHigh = formatTemp(day.tempmax);
     const tempLow = formatTemp(day.tempmin);
-    const windDir = day.winddir;
-    const windSpeed = Math.round(day.windspeed) + " mph";
+    const windSpeedDir =
+      createWindDirText(day.winddir) + " " + day.windspeed + " mph";
     const precipProb = formatPercent(day.precipprob);
 
     addDailyForcastWidget(
@@ -89,8 +97,7 @@ function processDailyForecast(data) {
       conditions,
       tempHigh,
       tempLow,
-      windDir,
-      windSpeed,
+      windSpeedDir,
       precipProb
     );
   });
@@ -110,8 +117,8 @@ function processHourlyForecast(data) {
 
       const conditions = hour.conditions;
       const temp = formatTemp(hour.temp);
-      const windDir = hour.winddir;
-      const windSpeed = Math.round(hour.windspeed) + " mph";
+      const windSpeedDir =
+        createWindDirText(hour.winddir) + " " + hour.windspeed + " mph";
       const precipProb = formatPercent(day.precipprob);
 
       addHourlyForcastWidget(
@@ -119,8 +126,7 @@ function processHourlyForecast(data) {
         renderLocaleDatetime,
         conditions,
         temp,
-        windDir,
-        windSpeed,
+        windSpeedDir,
         precipProb
       );
     });
@@ -141,8 +147,7 @@ function addDailyForcastWidget(
   conditions,
   tempHigh,
   tempLow,
-  windDir,
-  windSpeed,
+  windSpeedDir,
   precipProb
 ) {
   const carousel = document.querySelector(".dailyForecastCarousel");
@@ -160,11 +165,7 @@ function addDailyForcastWidget(
   tempsDiv.textContent = tempHigh + " / " + tempLow;
 
   const windDiv = document.createElement("div");
-  const windArrow = createWindArrow(windDir);
-  const windSpeedSpan = document.createElement("span");
-  windSpeedSpan.textContent = windSpeed;
-  windDiv.appendChild(windArrow);
-  windDiv.appendChild(windSpeedSpan);
+  windDiv.textContent = windSpeedDir;
 
   const precipDiv = document.createElement("div");
   precipDiv.textContent = precipProb;
@@ -184,8 +185,7 @@ function addHourlyForcastWidget(
   hour,
   conditions,
   temp,
-  windDir,
-  windSpeed,
+  windSpeedDir,
   precipProb
 ) {
   const carousel = document.querySelector(".hourlyForecastCarousel");
@@ -205,11 +205,7 @@ function addHourlyForcastWidget(
   tempDiv.textContent = temp;
 
   const windDiv = document.createElement("div");
-  const windArrow = createWindArrow(windDir);
-  const windSpeedSpan = document.createElement("span");
-  windSpeedSpan.textContent = windSpeed;
-  windDiv.appendChild(windArrow);
-  windDiv.appendChild(windSpeedSpan);
+  windDiv.textContent = windSpeedDir;
 
   const precipDiv = document.createElement("div");
   precipDiv.textContent = precipProb;
@@ -378,6 +374,8 @@ setAllScrolling();
 // window.formatTime = formatTime;
 
 window.main = main;
+
+window.createWindDirText = createWindDirText;
 // window.getLocalizedDatetime = getLocalizedDatetime;
 
 // window.getWeather = getWeather;
