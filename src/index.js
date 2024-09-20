@@ -101,7 +101,7 @@ function processHourlyForecast(data) {
       const temp = formatTemp(hour.temp);
       const windSpeedDir =
         createWindDirText(hour.winddir) + " " + hour.windspeed + " mph";
-      const precipProb = formatPercent(day.precipprob);
+      const precipProb = formatPercent(hour.precipprob);
 
       addHourlyForcastWidget(
         date,
