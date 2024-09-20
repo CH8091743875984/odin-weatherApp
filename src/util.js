@@ -78,11 +78,17 @@ export function createWindDirText(direction) {
 }
 
 export function formatDateShort(dateString) {
-  //formats a date string originating in the format "YYYY-MM-DD"
-  const parts = dateString.split("-");
-  const month = parseInt(parts[1], 10);
-  const day = parseInt(parts[2], 10);
-  const formattedDate = month + "/" + day;
+  //formats a date string originating in the format "YYYY-MM-DD to e.g. Fri 10/1"
+
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const date = new Date(dateString);
+
+  const dayOfWeek = days[date.getDay()];
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const formattedDate = `${dayOfWeek} ${month}/${day}`;
+
   return formattedDate;
 }
 
